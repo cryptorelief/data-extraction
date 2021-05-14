@@ -19,7 +19,7 @@ def modify(fname):
                 try:
                     new_dict[k] = pd.to_datetime(d[k])
                 except:
-                    new_dict[k] = pd.to_datetime("00/00/00")
+                    new_dict[k] = pd.to_datetime("")
             elif(k in {"resource_type","resource type","resource type_2"}):
                 if("resource_type" not in new_dict):
                     new_dict["resource_type"] = ""
