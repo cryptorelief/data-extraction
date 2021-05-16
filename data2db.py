@@ -9,8 +9,9 @@ def data2db(data_dict):
     r = requests.get("{}supply?external_id={}".format(base_url,data_dict["external_id"]))
     if(r.status_code==200):
         # TODO: DELETE THE CURRENT DATA
+        # TODO: CHECK IF THE DATA FROM DB IS NEWEST OR DATA FROM CORONASAFE API AND THEN DECIDE TO INCLUDE ONE OR THE OTHER
         pass
-    p = requests.post("{}supply".format(base_url),data=json.dumps(data_dict))
+    p = requests.put("{}supply".format(base_url),data=json.dumps(data_dict))
 
 for api in apis:
     new_data = get_diff(api)
