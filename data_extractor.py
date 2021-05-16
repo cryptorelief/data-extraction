@@ -33,7 +33,7 @@ def modify(data):
                     new_dict[k] = True if (d[k].lower().startswith("verified") or "and verified" in d[k].lower() or "but verified" in d[k].lower()) else False
                 elif(k in {"pin_code","pincode"}):
                     new_dict["pincode"] = d[k]
-                elif(k in {"external_id","hospital_available_normal_beds","hospital_available_ventilator_beds","hospital_available_icu_beds","district","city","title","email","state","pin_code","pincode","address","price","category","source_link","hospital_available_oxygen_beds","latitude","longitude"}):
+                elif(k in {"external_id","hospital_available_normal_beds","hospital_available_ventilator_beds","hospital_available_icu_beds","district","city","title","email","state","pin_code","pincode","address","price","category","source_link","hospital_available_oxygen_beds"}):
                     new_dict[k] = d[k]
         new_data.append(new_dict)
         del new_dict

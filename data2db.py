@@ -2,23 +2,46 @@ import requests
 from data_diff import get_diff,base_url
 from data_extractor import modify
 import json
+import sqlalchemy
 
 apis = ["oxygen_v2","ambulance_v2","medicine_v2","hospital_v2"]
 
-def data2db(data_dict):
-    r = requests.get("{}supply?external_id={}".format(base_url,data_dict["external_id"]))
-    if(r.status_code==200):
-        # TODO: CHECK IF THE DATA FROM DB IS NEWEST OR DATA FROM CORONASAFE API AND THEN DECIDE TO INCLUDE ONE OR THE OTHER
-        # We definitely know that there is some change in the data
-        # Maybe a "/modify/supply?external_id=blah" api call that changes the values of that content
-        #   with that external_id
-        pass
-    else:
-        # Create a new db entry
-        p = requests.put("{}supply".format(base_url),data=json.dumps(data_dict))
+pengine = sqlalchemy.create_engine("postgresql+psycopg2://{}:{}@{}:{}/{}".format(USERNAME,PASSWORD,HOSTNAME,PORT,DB_NAME))
+Base = declarative_base()
+metadata = sqlalchemy.MetaData(pengine)
+metadata.reflect()
 
-for api in apis:
-    new_data = get_diff(api)
-    modified_data = modify(new_data)
-    for d in modified_data:
-        data2db(d)
+# All the tables in the database (probably would be renamed in the future)
+
+class Supply(Base):
+    __table__ = sqlalchemy.Table("Supply", metadata)
+
+# TODO: Add Error handling table
+
+# session object to talk with the db
+Session = sqlalchemy.orm.sessionmaker(pengine)
+session = Session()
+
+def data2db(data_dict):
+    # check if a Supply with this external_id already exists
+    existing_entry = session.query(Supply).filter_by(external_id=data_dict['external_id']).first()
+    if existing_entry: # Check if external_id exists
+        last_verified = existing_entry['last_verified_on'] or datetime.datetime(1900, 1, 1)
+        if data_dict['last_verified_on'] > last_verified:
+            # update database with new verification date
+            session.query(Supply).update({Supply.last_verified_on: data_dict['last_verified_on']})
+            session.commit()
+    else:
+        try:
+            d = table(**data_dict)
+            session.add(d)
+            session.commit()
+        except Exception as e:
+            print(str(e))
+
+def extract_transform_load():
+    for api in apis:
+        new_data = get_diff(api)
+        modified_data = modify(new_data)
+        for d in modified_data:
+            data2db(d)

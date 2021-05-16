@@ -1,9 +1,6 @@
 import os
 from hashlib import sha256
 
-# Base URL of the API
-base_url = "https://127.0.0.1:5000/"
-
 def get_data(fname):
     r = requests.get("https://life-api.coronasafe.network/data/{}.json".format(fname))
     data = r.json()["data"]
