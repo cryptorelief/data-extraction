@@ -18,8 +18,10 @@ def hash_data(data):
 def get_diff(fname):
     new_data = []
     data = get_data(fname)
-    r = requests.get("{}request".format(base_url)) # Query our db and get all values
-    hashed_data = hash_data(r.json())
+    extracted_data_file_obj = open("extracted_data.json") # Get all the entries that are already present in the database
+    extracted_data = json.load(extracted_data_file_obj)["data"]
+    extracted_data_file_obj.close()
+    hashed_data = hash_data(extracted_data)
     for d in data:
         d_hashed = sha256(str(d).encode('utf-8')).hexdigest()
         if(d_hashed not in hashed_data):
