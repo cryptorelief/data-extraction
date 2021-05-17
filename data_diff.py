@@ -25,12 +25,22 @@ def get_diff(fname):
             entry['last_verified_on'] = str(entry['last_verified_on'])
         if(entry.get("created_on", "")):
             entry['created_on'] = str(entry['created_on'])
+    # read archived data
     extracted_data_file_obj = open("extracted_data.json", "r") # Get all the entries that are already present in the database
     extracted_data = json.load(extracted_data_file_obj)["data"]
     extracted_data_file_obj.close()
+    # hash archived data
     hashed_data = hash_data(extracted_data)
+    # compare hashes to get new data
     for d in data:
         d_hashed = sha256(str(d).encode('utf-8')).hexdigest()
         if(d_hashed not in hashed_data):
             new_data.append(d)
+    # add new data to archived data
+    extracted_data+=new_data
+    # write new archived data
+    extracted_data_json = {"data":extracted_data}
+    extracted_data_file = open("extracted_data.json","w")
+    json.dump(extracted_data_json, extracted_data_file,indent=4,default=str)
+    extracted_data_file.close()
     return new_data
