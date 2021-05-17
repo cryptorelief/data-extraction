@@ -3,6 +3,7 @@ import requests
 import json
 
 def modify(data):
+    # `data` format = [{}]
     new_data = []
     for d in data:
         new_dict = {'source1': "coronasafe.network"}
@@ -39,14 +40,4 @@ def modify(data):
                     new_dict[k] = d[k]
         new_data.append(new_dict)
         del new_dict
-    extracted_data_file = open("extracted_data.json","r")
-    extracted_data = json.load(extracted_data_file)["data"]
-    extracted_data_file.close()
-    extracted_data+=new_data
-    extracted_data_json = {"data":extracted_data}
-    extracted_data_file = open("extracted_data.json","w")
-    json.dump(extracted_data_json, extracted_data_file,indent=4,default=str)
-    extracted_data_file.close()
-    new_db = {"data":new_data}
-    new_db_json = json.dumps(new_db,indent=4,default=str)
     return new_data
