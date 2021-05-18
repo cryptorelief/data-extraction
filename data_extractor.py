@@ -1,6 +1,7 @@
 import pandas as pd
 import requests
 import json
+from datetime import datetime
 
 def modify(data):
     # `data` format = [{}]
@@ -11,7 +12,10 @@ def modify(data):
             if(d[k]) and d[k]!='-':
                 if(k in {"created_on","last_verified_on"}):
                     try:
-                        new_dict[k] = pd.to_datetime(d[k].replace("Z", ""))
+                        dt = pd.to_datetime(d[k].replace("Z", ""))
+                        if dt > datetime.now():
+                            dt = pd.to_datetime(d[k].replace("Z", ""), dayfirst=True)
+                        new_dict[k] = dt
                     except:
                         pass
                 elif(k in {"resource_type","resource type","resource type_2"}):
