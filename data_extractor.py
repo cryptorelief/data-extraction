@@ -1,6 +1,7 @@
 import pandas as pd
 import requests
 import json
+from datetime import datetime
 
 def modify(data):
     # `data` format = [{}]
@@ -11,7 +12,10 @@ def modify(data):
             if(d[k]) and d[k]!='-':
                 if(k in {"created_on","last_verified_on"}):
                     try:
-                        new_dict[k] = pd.to_datetime(d[k].replace("Z", ""))
+                        dt = pd.to_datetime(d[k].replace("Z", ""))
+                        if dt > datetime.now():
+                            dt = pd.to_datetime(d[k].replace("Z", ""), dayfirst=True)
+                        new_dict[k] = dt
                     except:
                         pass
                 elif(k in {"resource_type","resource type","resource type_2"}):
@@ -33,7 +37,7 @@ def modify(data):
                 elif(k=="quantity_available"):
                     new_dict[k] = True if d[k] not in ["Unavailable","Undetermined","no beds currently avilable","NIL"] else False
                 elif(k=="verification_status"):
-                    new_dict[k] = True if (d[k].lower().startswith("verified") or "and verified" in d[k].lower() or "but verified" in d[k].lower()) else False
+                    new_dict["verified"] = d[k].lower().startswith("verified") or ("and verified" in d[k].lower()) or ("but verified" in d[k].lower())
                 elif(k in {"pin_code","pincode"}):
                     new_dict["pincode"] = d[k]
                 elif(k in {"hospital_available_normal_beds","hospital_available_ventilator_beds","hospital_available_icu_beds","district","city","title","email","state","pin_code","pincode","address","price","category","source_link","hospital_available_oxygen_beds"}):
