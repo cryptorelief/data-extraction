@@ -53,12 +53,12 @@ def modify(data,data_source):
                     if("resource_type" not in new_dict):
                         new_dict["resource_type"] = ""
                     if(d[k]):
-                        new_dict["resource_type"] += d[k]
+                        new_dict["resource_type"] += d[k].replace("Hopital","Hospital")
                 elif(k=="Contact Number"):
                     new_dict["phone"] = d[k]
                 elif(k=="City"):
                     new_dict["city"] = d[k]
-                elif(k=="Timestamp"):
+                elif(k=="Timestamp"): # TODO: CHECK THE TIMEZONE AND CONVERT TO IST
                     new_dict["created_on"] = pd.to_datetime(d[k])
                 elif(k=="Source"):
                     new_dict["source2"] = d[k]
