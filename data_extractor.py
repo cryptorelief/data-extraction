@@ -31,7 +31,8 @@ def modify(data, data_source):
         for record in data:
             new_dict = {'source1': "coronasafe.network"}
             for (key, value) in record.items():
-                value = isinstance(value, str) and value.strip().strip("-").strip(",")
+                if isinstance(value, str):
+                    value = value.strip().strip("-").strip(",")
                 if value:
                     if(key in preserve):
                         new_dict[key] = value
@@ -57,7 +58,7 @@ def modify(data, data_source):
                         new_dict["comments"] = "\n".join(filter(None, [new_dict['comments'], value]))
                     elif(key=="quantity_available"):
                         new_dict['available'] = (value not in ["Unavailable","Undetermined","no beds currently avilable","NIL",""])
-                        new_dict['quantity_available'] = value
+                        new_dict['quantity_text'] = value
                     elif(key=="verification_status"):
                         new_dict["verified"] = value.lower().startswith("verified") or ("and verified" in value.lower()) or ("but verified" in value.lower())
             # outside of the loop, we check which of the 4 hospital w/ bed types have values and build a list of (key,value) pairs
@@ -74,6 +75,8 @@ def modify(data, data_source):
                 orig_comments = new_dict.get('comments', "")
                 # generate new comments from resource type text
                 comments = ""
+                if value.isdigit():
+                    new_dict['quantity'] = int(value)
                 if value.lower().strip() not in ["available", "yes", "no", ""]:
                     comments = "{}: {}".format(resource_type, value)
                 # if we're on first out of 4 possible hospital w/ bed types, use the dict we were creating so far
@@ -96,8 +99,9 @@ def modify(data, data_source):
         for record in data:
             new_dict = {'source1': "nlp_supply"}
             for (key, value) in record.items():
-                value = isinstance(value, str) and value.strip().strip("-").strip(",")
-                if value:                
+                if isinstance(value, str):
+                    value = value.strip().strip("-").strip(",")
+                if value or value==0:
                     if(key in {"Resource Type","Resource Category"}):
                         if("resource_type" not in new_dict):
                             new_dict["resource_type"] = ""
