@@ -30,6 +30,7 @@ def get_updates_and_inserts(new_data,data_source,table):
 
 
 def data2db(table,new_data,data_source):
+    return
     updates, inserts = get_updates_and_inserts(new_data, data_source,table)
     if(updates):
         try:
