@@ -47,9 +47,9 @@ def modify(data, data_source):
                         except:
                             pass
                     elif(key in {"resource_type","resource type","resource type_2"}):
-                        if("resource_type" not in new_dict):
-                            new_dict["resource_type"] = ""
-                        new_dict["resource_type"] += "{}".format(value)
+                        if("resource_raw" not in new_dict):
+                            new_dict["resource_raw"] = ""
+                        new_dict["resource_raw"] += "{}".format(value)
                     elif(key in {"Details","description","Other comments","comment","Sales/Renta/Charity"}):
                         if("comments" not in new_dict):
                             new_dict["comments"] = ""
@@ -70,7 +70,7 @@ def modify(data, data_source):
             for (i, (key, value)) in enumerate(hospital_beds):
                 # crude way to check if best are available (does not start with "not" and "no")
                 available = not value.lower().startswith("no")
-                resource_type = key.replace("available", "with").replace("_", " ")
+                resource_raw = key.replace("available", "with").replace("_", " ")
                 # store comments so far (so we can add to them in the loop)
                 orig_comments = new_dict.get('comments', "")
                 # generate new comments from resource type text
@@ -78,12 +78,12 @@ def modify(data, data_source):
                 if value.isdigit():
                     new_dict['quantity'] = int(value)
                 if value.lower().strip() not in ["available", "yes", "no", ""]:
-                    comments = "{}: {}".format(resource_type, value)
+                    comments = "{}: {}".format(resource_raw, value)
                 # if we're on first out of 4 possible hospital w/ bed types, use the dict we were creating so far
                 if i==0:
                     new_dict['available'] = available
                     new_dict['comments'] = "\n".join(filter(None, [orig_comments, comments]))
-                    new_dict['resource_type'] = resource_type
+                    new_dict['resource_raw'] = resource_raw
                 # otherwise create a new dict from existing data and add it to `new_data`
                 else:
                     if not available:
@@ -91,7 +91,7 @@ def modify(data, data_source):
                     extra_dict = deepcopy(new_dict)
                     extra_dict['available'] = available
                     extra_dict['comments'] = "\n".join(filter(None, [orig_comments, comments]))
-                    extra_dict['resource_type'] = resource_type
+                    extra_dict['resource_raw'] = resource_raw
                     new_data.append(extra_dict)
             new_data.append(new_dict)
             del new_dict
@@ -103,10 +103,10 @@ def modify(data, data_source):
                     value = value.strip().strip("-").strip(",")
                 if value or value==0:
                     if(key in {"Resource Type","Resource Category"}):
-                        if("resource_type" not in new_dict):
-                            new_dict["resource_type"] = ""
+                        if("resource_raw" not in new_dict):
+                            new_dict["resource_raw"] = ""
                         if(value):
-                            new_dict["resource_type"] += value.replace("Hopital","hospital")
+                            new_dict["resource_raw"] += value.replace("Hopital","hospital")
                     elif(key in {"row_num"}):
                         new_dict[key] = value
                     elif(key=="Contact Number"):
@@ -114,7 +114,10 @@ def modify(data, data_source):
                     elif(key=="City"):
                         new_dict["city"] = value
                     elif(key=="Timestamp"): # TODO: CHECK THE TIMEZONE AND CONVERT TO IST
-                        new_dict["created_on"] = pd.to_datetime(value)
+                        try:
+                            new_dict["created_on"] = pd.to_datetime(value)
+                        except:
+                            pass
                     elif(key=="Source"):
                         new_dict["source2"] = value
             new_data.append(new_dict)
