@@ -78,10 +78,10 @@ def get_diff(data_source, filenames=None):
     # hash archived data
     hashed_data = hash_data(extracted_data)
     # compare hashes to get new data
-    for d in data_copy:
+    for d, orig in zip(data_copy, data):
         d_hashed = sha256(str(d).encode('utf-8')).hexdigest()
         if(d_hashed not in hashed_data):
-            new_data.append(d)
+            new_data.append(orig)
     # add new data to archived data
     extracted_data += new_data
     # write new archived data

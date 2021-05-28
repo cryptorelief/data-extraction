@@ -22,8 +22,14 @@ def get_updates_and_inserts(new_data,data_source,table):
             if(existing_entry):
                 # if last_verified_on is newer, update data - otherwise do nothing
                 last_verified = existing_entry.last_verified_on or datetime.datetime(1960, 1, 1)
-                if d.get('last_verified_on', datetime.datetime(1950, 1, 1)) > last_verified:
-                    updates.append(d)
+                try:
+                    if d.get('last_verified_on', datetime.datetime(1950, 1, 1)) > last_verified:
+                        updates.append(d)
+                except:
+                    print(type(d.get('last_verified_on', datetime.datetime(1950, 1, 1))))
+                    print(d.get('last_verified_on', datetime.datetime(1950, 1, 1)))
+                    print(type(last_verified))
+                    print(last_verified)
             else:
                 inserts.append(d)
     return (updates, inserts)
