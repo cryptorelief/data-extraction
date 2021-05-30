@@ -26,7 +26,7 @@ def data2db(table, new_data, data_source):
             contact_dict = {}
             for entry in contact_fields:
                 if(entry=="tg_user_handle"):
-                    contact_dict[entry] = d.get(entry,"")
+                    contact_dict["user_handle"] = d.get(entry,"")
                 else:
                     contact_dict[entry] = d.get(entry)
                 d.pop(entry)
@@ -44,7 +44,7 @@ def data2db(table, new_data, data_source):
                         pass
                 else:
                     table_objs.append(table(**d))
-                    
+
     with get_session() as session:
         try:
             session.bulk_save_objects(contacts_objs)
