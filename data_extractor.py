@@ -122,4 +122,37 @@ def modify(data, data_source):
                         new_dict["source2"] = value
             new_data.append(new_dict)
             del new_dict
+    elif(data_source=="nlp_demand"):
+        for record in data:
+            new_dict = {'source1': "nlp_demand"}
+            for (key,value) in record.items():
+                if isinstance(value, str):
+                    value = value.strip().strip("-").strip(",")
+                if value or value==0:
+                    if(key in {"Resource Type","Resource Category"}):
+                        if("resource_raw" not in new_dict):
+                            new_dict["resource_raw"] = ""
+                        if(value):
+                            new_dict["resource_raw"] += value.replace("Hopital","hospital")
+                    elif(key in {"row_num"}):
+                        new_dict[key] = value
+                    elif(key=="Contact Number"):
+                        new_dict["phone"] = value
+                    elif(key=="City"):
+                        new_dict["city"] = value
+                    elif(key=="Timestamp"): # TODO: CHECK THE TIMEZONE AND CONVERT TO IST
+                        try:
+                            new_dict["created_on"] = pd.to_datetime(value)
+                        except:
+                            pass
+                    elif(key=="Source"):
+                        new_dict["source2"] = value
+                    elif(key=="Username"):
+                        new_dict["name"] = value
+                    elif(key=="Metadata"):
+                        new_dict["source"] = "telegram"
+                        new_dict["tg_user_id"] = value['from_user']['id']
+                        new_dict["tg_user_handle"] = value['from_user']['username']
+                        new_dict["group_id"] = value['chat']['id']
+
     return new_data

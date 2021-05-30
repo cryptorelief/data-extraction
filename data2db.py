@@ -7,58 +7,64 @@ from sqlalchemy.ext.declarative import declarative_base
 from credentials import USERNAME,PASSWORD,HOSTNAME,PORT,DB_NAME
 import datetime
 import pandas
-from db import Supply, Demand, get_session
+from db import Supply, Demand, Contact, get_session
 
-
-def get_updates_and_inserts(new_data,data_source,table):
-    updates = []
-    inserts = []
+def get_existing_entry(table, data_dict, data_source):
     with get_session() as session:
-        for d in new_data:
-            if(data_source=="coronasafe"):
-                existing_entry = session.query(table).filter_by(external_uuid=d['external_uuid']).first()
-            elif(data_source=="nlp_supply"):
-                existing_entry = session.query(table).filter_by(row_num=d['row_num']).first()
-            if(existing_entry):
-                # if last_verified_on is newer, update data - otherwise do nothing
-                last_verified = existing_entry.last_verified_on or datetime.datetime(1960, 1, 1)
-                try:
-                    if d.get('last_verified_on', datetime.datetime(1950, 1, 1)) > last_verified:
-                        updates.append(d)
-                except:
-                    print(type(d.get('last_verified_on', datetime.datetime(1950, 1, 1))))
-                    print(d.get('last_verified_on', datetime.datetime(1950, 1, 1)))
-                    print(type(last_verified))
-                    print(last_verified)
-            else:
-                inserts.append(d)
-    return (updates, inserts)
+        if(data_source=="coronasafe"):
+            existing_entry = session.query(table).filter_by(external_uuid=data_dict['external_uuid']).first()
+        elif(data_source in {"nlp_supply","nlp_demand"}):
+            existing_entry = session.query(table).filter_by(row_num=data_dict['row_num']).first()
+        return existing_entry
 
-
-def data2db(table,new_data,data_source):
-    updates, inserts = get_updates_and_inserts(new_data, data_source,table)
-    if(updates):
+def data2db(table, new_data, data_source):
+    contacts_objs = []
+    table_objs = []
+    for d in new_data:
+        contact_fields = ["source","tg_user_id","tg_user_handle"]
+        if(any(item in contact_fields for item in list(d.keys()))):
+            contact_dict = {}
+            for entry in contact_fields:
+                if(entry=="tg_user_handle"):
+                    contact_dict[entry] = d.get(entry,"")
+                else:
+                    contact_dict[entry] = d.get(entry)
+                d.pop(entry)
+            if(contact_dict):
+                contacts_bool.append(True)
+                contact = Contact(**contact_dict)
+                contacts_objs.append(contact)
+                d.update(contact=contact)
+                existing_entry = get_existing_entry(table, d, data_source)
+                if(existing_entry):
+                    try:
+                        if(d.get('last_verified_on', datetime.datetime(1950, 1, 1)) > last_verified):
+                            table_objs.append(table(**d))
+                    except:
+                        pass
+                else:
+                    table_objs.append(table(**d))
+                    
+    with get_session() as session:
         try:
-            with get_session() as session:
-                session.bulk_update_mappings(table,updates)
-                session.commit()
+            session.bulk_save_objects(contacts_objs)
+            session.commit()
+            session.bulk_save_objects(table_objs)
+            session.commit()
         except Exception as e:
-            print("Error while updating: " + str(e))
-    if(inserts):
-        try:
-            with get_session() as session:
-                session.bulk_insert_mappings(table,inserts)
-                session.commit()
-        except Exception as e:
-            print("Error in inserting: " + str(e))
+            print("Error while saving: " + str(e))
 
 
 def extract_transform_load(data_source):
     if(data_source=="coronasafe"):
         new_data = get_diff(data_source,["oxygen_v2","ambulance_v2","medicine_v2","hospital_v2"])
-        print("Adding %d CORONASAFE records to database" % len(new_data))
+        print("Adding %d CORONASAFE records to DB" % len(new_data))
         data2db(Supply,new_data,data_source)
     elif(data_source=="nlp_supply"):
         new_data = get_diff(data_source)
-        print("Adding %d NLP SUPPLY records to database" % len(new_data))
+        print("Adding %d NLP SUPPLY records to DB" % len(new_data))
         data2db(Supply,new_data,data_source)
+    elif(data_source=="nlp_demand"):
+        new_data = get_diff(data_source)
+        print("Adding %d NLP DEMAND records to DB" % len(new_data))
+        data2db(Demand,new_data,data_source)

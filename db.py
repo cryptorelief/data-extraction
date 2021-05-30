@@ -18,6 +18,7 @@ Supply = Base.classes.Supply
 Raw = Base.classes.Raw
 Matches = Base.classes.Matches
 Auth = Base.classes.Auth
+Contact = Base.classes.Contact
 UserLog = Base.classes.UserLog
 """
 class Demand(Base):

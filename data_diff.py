@@ -38,6 +38,11 @@ def get_data(data_source, filenames=None):
         csv_data = r.content.decode('utf-8')
         df = csv_data2df(csv_data)
         data = df2list(df)
+    elif(data_source=="nlp_demand"):
+        r = requests.get("https://docs.google.com/spreadsheets/d/1TwD2-0vjloYurPHa86-PDd8rQSsVrRn7YtB90FXDgJw/export?format=csv&id=1TwD2-0vjloYurPHa86-PDd8rQSsVrRn7YtB90FXDgJw&gid=0")
+        csv_data = r.content.decode('utf-8')
+        df = csv_data2df(csv_data)
+        data = df2list(df)
     return data
 
 
