@@ -29,7 +29,7 @@ def modify(data, data_source):
     ]
     if(data_source=="coronasafe"):
         for record in data:
-            new_dict = {'source1': "coronasafe.network"}
+            new_dict = {'source': "coronasafe.network"}
             for (key, value) in record.items():
                 if isinstance(value, str):
                     value = value.strip().strip("-").strip(",")
@@ -97,7 +97,7 @@ def modify(data, data_source):
             del new_dict
     elif(data_source=="nlp_supply"):
         for record in data:
-            new_dict = {'source1': "nlp_supply"}
+            new_dict = {'source': "nlp_supply"}
             for (key, value) in record.items():
                 if isinstance(value, str):
                     value = value.strip().strip("-").strip(",")
@@ -124,7 +124,7 @@ def modify(data, data_source):
             del new_dict
     elif(data_source=="nlp_demand"):
         for record in data:
-            new_dict = {'source1': "nlp_demand"}
+            new_dict = {'source': "nlp_demand"}
             for (key,value) in record.items():
                 if isinstance(value, str):
                     value = value.strip().strip("-").strip(",")
