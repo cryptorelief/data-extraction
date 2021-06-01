@@ -14,10 +14,10 @@ def modify(data, data_source):
         'external_id': "external_uuid",
         'data_name': "source2",
         'pin_code': "pincode",
+        "city": "location_raw",
     }
     preserve = [
         "district",
-        "city",
         "title",
         "email",
         "state",
@@ -112,7 +112,7 @@ def modify(data, data_source):
                     elif(key=="Contact Number"):
                         new_dict["phone"] = value
                     elif(key=="City"):
-                        new_dict["city"] = value
+                        new_dict["location_raw"] = value
                     elif(key=="Timestamp"): # TODO: CHECK THE TIMEZONE AND CONVERT TO IST
                         try:
                             new_dict["created_on"] = pd.to_datetime(value)
@@ -139,7 +139,7 @@ def modify(data, data_source):
                     elif(key=="Contact Number"):
                         new_dict["phone"] = value
                     elif(key=="City"):
-                        new_dict["city"] = value
+                        new_dict["location_raw"] = value
                     elif(key=="Timestamp"): # TODO: CHECK THE TIMEZONE AND CONVERT TO IST
                         try:
                             new_dict["created_on"] = pd.to_datetime(value)
