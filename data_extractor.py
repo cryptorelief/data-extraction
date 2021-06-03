@@ -3,6 +3,7 @@ import requests
 import json
 from datetime import datetime
 from copy import deepcopy
+import ast
 
 
 def modify(data, data_source):
@@ -133,7 +134,7 @@ def modify(data, data_source):
                         if("resource_raw" not in new_dict):
                             new_dict["resource_raw"] = ""
                         if(value):
-                            new_dict["resource_raw"] += value.replace("Hopital","hospital")
+                            new_dict["resource_raw"] += f" {value.replace('Hopital','hospital')}"
                     elif(key in {"row_num"}):
                         new_dict[key] = value
                     elif(key=="Contact Number"):
@@ -149,10 +150,13 @@ def modify(data, data_source):
                         new_dict["source2"] = value
                     elif(key=="Username"):
                         new_dict["name"] = value
-                    elif(key=="Metadata"):
-                        new_dict["source"] = "telegram"
-                        new_dict["tg_user_id"] = value['from_user']['id']
-                        new_dict["tg_user_handle"] = value['from_user']['username']
-                        new_dict["group_id"] = value['chat']['id']
-
+                    # elif(key=="Metadata"):
+                    #     new_dict["source"] = "telegram"
+                    #     if(value):
+                    #         value_dict = ast.literal_eval(value)
+                    #         new_dict["tg_user_id"] = value_dict['from_user']['id']
+                    #         new_dict["tg_user_handle"] = value_dict['from_user']['username']
+                    #         new_dict["group_id"] = value_dict['chat']['id']
+            new_data.append(new_dict)
+            del new_dict
     return new_data

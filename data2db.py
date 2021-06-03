@@ -25,13 +25,13 @@ def data2db(table, new_data, data_source):
         if(any(item in contact_fields for item in list(d.keys()))):
             contact_dict = {}
             for entry in contact_fields:
-                if(entry=="tg_user_handle"):
-                    contact_dict["user_handle"] = d.get(entry,"")
-                else:
-                    contact_dict[entry] = d.get(entry)
-                d.pop(entry)
+                if(entry in list(d.keys())):
+                    if(entry=="tg_user_handle"):
+                        contact_dict["user_handle"] = d.get(entry,"")
+                    else:
+                        contact_dict[entry] = d.get(entry)
+                    d.pop(entry)
             if(contact_dict):
-                contacts_bool.append(True)
                 contact = Contact(**contact_dict)
                 contacts_objs.append(contact)
                 d.update(contact=contact)
